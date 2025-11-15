@@ -1,6 +1,4 @@
-// NOTA IMPORTANTE:
-// Cuando subas esto a la nube, cambiarás esta URL por la de Render.
-// Por ahora, usamos la local.
+// URL proporcionada por render
 const API_URL = "https://api-de-enrique.onrender.com/api/saludo";
 
 async function obtenerDatos() {
