@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyecto Final</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .caja { border: 2px solid #333; padding: 20px; margin-top: 20px; display: inline-block; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Mi Proyecto Web</h1>
+    <p>Haga clic para conectar con el servidor:</p>
+    
+    <button onclick="obtenerDatos()">Obtener Saludo del Backend</button>
+
+    <div id="resultado" class="caja">
+        Esperando conexión...
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
