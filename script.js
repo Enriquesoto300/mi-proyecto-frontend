@@ -1,7 +1,7 @@
 // NOTA IMPORTANTE:
 // Cuando subas esto a la nube, cambiarás esta URL por la de Render.
 // Por ahora, usamos la local.
-const API_URL = "http://127.0.0.1:5000/api/saludo";
+const API_URL = "https://api-mi-tarea.onrender.com";
 
 async function obtenerDatos() {
     const caja = document.getElementById("resultado");
