@@ -1,24 +1,219 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Proyecto Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Feria de Ciencias</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; }
-        .caja { border: 2px solid #333; padding: 20px; margin-top: 20px; display: inline-block; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .toggle-link a {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            text-align: center;
+        }
     </style>
 </head>
-<body>
-    <h1>Mi Proyecto Web</h1>
-    <p>Haga clic para conectar con el servidor:</p>
-    
-    <button onclick="obtenerDatos()">Obtener Saludo del Backend</button>
 
-    <div id="resultado" class="caja">
-        Esperando conexión...
+<body>
+
+    <div class="auth-container">
+
+        <div id="login-box">
+            <h2>Iniciar Sesión</h2>
+            <input type="email" id="loginEmail" placeholder="Correo Institucional">
+            <input type="password" id="loginPass" placeholder="Contraseña">
+            <button onclick="hacerLogin()">Entrar</button>
+            <p id="loginError" class="error"></p>
+
+            <div class="toggle-link">
+                ¿No tienes cuenta? <a onclick="toggleForms()">Regístrate aquí</a>
+            </div>
+        </div>
+
+        <div id="register-box" class="hidden">
+            <h2>Crear Cuenta</h2>
+            <select id="regTipo" onchange="actualizarPlaceholder()">
+                <option value="alumno">Soy Alumno</option>
+                <option value="profesor">Soy Profesor</option>
+                <option value="administrativo">Soy Administrativo</option>
+            </select>
+
+            <input type="text" id="regNombre" placeholder="Primer Nombre">
+            <input type="text" id="regApellido" placeholder="Apellido Paterno">
+            <input type="text" id="regID" placeholder="Matrícula">
+
+            <input type="email" id="regEmail" placeholder="Correo Institucional">
+            <input type="password" id="regPass" placeholder="Contraseña">
+
+            <button onclick="hacerRegistro()" style="background-color: #28a745;">Registrarse</button>
+            <p id="regError" class="error"></p>
+
+            <div class="toggle-link">
+                ¿Ya tienes cuenta? <a onclick="toggleForms()">Inicia sesión</a>
+            </div>
+        </div>
+
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const API_URL = "https://api-de-enrique.onrender.com/api"; // Ajusta esto a tu URL real
+
+        function toggleForms() {
+            document.getElementById('login-box').classList.toggle('hidden');
+            document.getElementById('register-box').classList.toggle('hidden');
+            limpiarErrores();
+        }
+
+        function actualizarPlaceholder() {
+            const tipo = document.getElementById('regTipo').value;
+            const inputID = document.getElementById('regID');
+            if (tipo === 'alumno') inputID.placeholder = "Matrícula";
+            else inputID.placeholder = "Número de Empleado";
+        }
+
+        function limpiarErrores() {
+            document.getElementById('loginError').innerText = "";
+            document.getElementById('regError').innerText = "";
+        }
+
+        // --- FUNCIÓN DE REGISTRO ---
+        async function hacerRegistro() {
+            const datos = {
+                tipo: document.getElementById('regTipo').value,
+                nombre: document.getElementById('regNombre').value,
+                apellido: document.getElementById('regApellido').value,
+                identificador: document.getElementById('regID').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPass').value
+            };
+
+            // Validación simple
+            if (!datos.nombre || !datos.email || !datos.password) {
+                document.getElementById('regError').innerText = "Todos los campos son obligatorios";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/registro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("¡Registro exitoso! Ahora inicia sesión.");
+                    toggleForms();
+                } else {
+                    document.getElementById('regError').innerText = data.error || "Error al registrar";
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('regError').innerText = "Error de conexión con el servidor";
+            }
+        }
+
+        // --- FUNCIÓN DE LOGIN ---
+        async function hacerLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: pass })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // GUARDAMOS LA SESIÓN EN EL NAVEGADOR
+                    sessionStorage.setItem('usuario_id', data.usuario_id);
+                    sessionStorage.setItem('rol', data.tipo);
+                    sessionStorage.setItem('email', data.email);
+
+                    alert(`Bienvenido ${data.email} (${data.tipo})`);
+
+                    // AQUÍ REDIRECCIONAREMOS EN EL FUTURO
+                    // window.location.href = "dashboard.html"; 
+                    console.log("Login correcto, usuario:", data);
+                } else {
+                    document.getElementById('loginError').innerText = data.error;
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loginError').innerText = "Error de conexión";
+            }
+        }
+    </script>
+
 </body>
+
 </html>
